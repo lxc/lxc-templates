@@ -190,7 +190,6 @@ AC_CONFIG_FILES([
 	templates/lxc-alpine
 	templates/lxc-altlinux
 	templates/lxc-archlinux
-	templates/lxc-busybox
 	templates/lxc-centos
 	templates/lxc-cirros
 	templates/lxc-debian

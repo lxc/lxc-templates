@@ -4,7 +4,6 @@ templates_SCRIPTS = \
 	lxc-alpine \
 	lxc-altlinux \
 	lxc-archlinux \
-	lxc-busybox \
 	lxc-centos \
 	lxc-cirros \
 	lxc-debian \
