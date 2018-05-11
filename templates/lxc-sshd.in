@@ -239,7 +239,7 @@ EOF
         ifconfig eth0 |grep inet
     fi
 
-    exec @SBINDIR@/init.lxc -- $sshd_path
+    exec @SBINDIR@/init.lxc --name $name -- $sshd_path
     exit 1
 fi
 
