@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT([lxc-templates], [3.0.0])
+AC_INIT([lxc-templates], [3.0.1])
 AM_INIT_AUTOMAKE
 
 # We need pkg-config
