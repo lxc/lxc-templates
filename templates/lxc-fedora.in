@@ -566,6 +566,23 @@ download_fedora()
             return 1
         fi
         echo "Using bootstrap environment at ${CHROOT_DIR}"
+        echo "Ensure bootstrap repository is fully setup for Fedora ${release}"
+        # check if the gpg-keys of the demanded release are installed in bootstrap
+        # this makes sure, that the bootstrap repo was already prepared for $release
+        # if we don't do this check, "setup_repositories" could try to install older
+        # versions of the release-rpms which would fail as rpm would fail
+        if [ -f ${CHROOT_DIR}/etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-${release}-primary ]
+        then
+            echo "The bootstrap repository seems to be prepared"
+        else
+            INSTALL_ROOT="/"
+            if ! setup_repositories "${cache}" "${basearch}" "${release}" "${mirror}"
+            then
+                echo "Error: Failed to configure repositories in ${CHROOT_DIR}${INSTALL_ROOT}"
+                return 1
+            fi
+            INSTALL_ROOT=${setup_rootfs}
+        fi
     fi
 
     if ! mkdir -p "${setup_rootfs}"
@@ -812,10 +829,18 @@ setup_repositories()
     local release="${3}"
     local mirror="${4}"
 
+    # select rpm packages to install depending on the version to install
+    rpmpkgs="fedora-release-${release} fedora-repos-${release}"
+    if [ "${release}" -gt 26 ]
+    then
+        rpmpkgs="${rpmpkgs} fedora-gpg-keys-${release}"
+    fi
+
     # download repository packages if not found in cache
     pushd "${cache}" >/dev/null
     if [ -z "$(ls -1 ./fedora-release-${release}*.noarch.rpm 2>/dev/null)" ] ||
-       [ -z "$(ls -1 ./fedora-repos-${release}*.noarch.rpm 2>/dev/null)" ]
+       [ -z "$(ls -1 ./fedora-repos-${release}*.noarch.rpm 2>/dev/null)" ] ||
+       ( [ "${release}" -gt 26 ] && [ -z "$(ls -1 ./fedora-gpg-keys-${release}*.noarch.rpm 2>/dev/null)" ] )
     then
         # if no mirror given, get an appropriate mirror from the mirror list
         if [ -z "${mirror}" ]
@@ -830,7 +855,7 @@ setup_repositories()
         do
             local release_url="${mirror_url}/Packages/f"
 
-            for pkg in fedora-release-${release} fedora-repos-${release}
+            for pkg in ${rpmpkgs}
             do
                 test -n "$(ls -1 ./${pkg}*.noarch.rpm 2>/dev/null)" && continue
 
@@ -853,9 +878,10 @@ setup_repositories()
                 fi
             done
 
-            # if we have both packages continue
+            # if we have all packages continue
             if [ -z "$(ls -1 ./fedora-release-${release}*.noarch.rpm 2>/dev/null)" ] ||
                [ -z "$(ls -1 ./fedora-repos-${release}*.noarch.rpm 2>/dev/null)" ]
+               ( [ "${release}" -gt 26 ] && [ -z "$(ls -1 ./fedora-gpg-keys-${release}*.noarch.rpm 2>/dev/null)" ] )
             then
                 break
             fi
@@ -867,12 +893,20 @@ setup_repositories()
     then
         cp ./fedora-release-${release}*.noarch.rpm "${CHROOT_DIR}" &&
         cp ./fedora-repos-${release}*.noarch.rpm "${CHROOT_DIR}"
+        if [ "${release}" -gt 26 ]
+        then
+            cp ./fedora-gpg-keys-${release}*.noarch.rpm "${CHROOT_DIR}"
+        fi
     else
         local pkgdir="${cache}"
     fi
 
     # use '--nodeps' to work around 'fedora-release-24-*' bash dependency
     ${CHROOT_CMD}rpm --root "${INSTALL_ROOT}" -ivh --nodeps "${pkgdir}"/{fedora-release-${release}*.noarch.rpm,fedora-repos-${release}*.noarch.rpm}
+    if [ "${release}" -gt 26 ];
+    then
+        ${CHROOT_CMD}rpm --root "${INSTALL_ROOT}" -ivh --nodeps "${pkgdir}"/fedora-gpg-keys-${release}*.noarch.rpm
+    fi
     local ret=$?
 
     # dnf will take $basearch from host, so force the arch we want
@@ -891,6 +925,10 @@ setup_repositories()
     then
         # shellcheck disable=SC2086
         rm -f "${CHROOT_DIR}"/{fedora-release-${release}*.noarch.rpm,fedora-repos-${release}*.noarch.rpm}
+        if [ "${release}" -gt 26 ]
+        then
+            rm -f "${CHROOT_DIR}"/fedora-gpg-keys-${release}*.noarch.rpm
+        fi
     fi
 
     return 0
