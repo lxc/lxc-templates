@@ -150,7 +150,7 @@ download_opensuse()
 
     update_repo_url="http://download.opensuse.org/update/$DISTRO/repo/oss"
     # Leap update repos were rearranged
-    if [[ $DISTRO == "leap/4"* ]]; then
+    if [[ $DISTRO == "leap/4"* ]] || [[ $DISTRO == "leap/1"* ]]; then
         update_repo_url="http://download.opensuse.org/update/$DISTRO/oss/"
     fi
     # tumbleweed has no update repo
@@ -199,12 +199,12 @@ EOF
     fi
 
     # dhcpcd is not in the default repos since Leap 42.1, neither in tumbleweed
-    if [[ $DISTRO != "leap/4"* ]] && [[ $DISTRO != "tumbleweed" ]]; then
+    if [[ $DISTRO != "leap/4"* ]] && [[ $DISTRO != "leap/1"* ]] && [[ $DISTRO != "tumbleweed" ]]; then
         echo "Support: dhcpcd" >> $cache/partial-$arch-packages/opensuse.conf
     fi
 
     # Leap and tumbleweed doesn't seem to have iproute2 utils installed
-    if [[ $DISTRO == "leap/4"* ]] || [[ $DISTRO == "tumbleweed" ]]; then
+    if [[ $DISTRO == "leap/4"* ]] || [[ $DISTRO == "leap/1"* ]] || [[ $DISTRO == "tumbleweed" ]]; then
         echo "Support: net-tools iproute2" >> $cache/partial-$arch-packages/opensuse.conf
     fi
 
@@ -479,8 +479,8 @@ fi
 
 if [ -z "$DISTRO" ]; then
     echo ""
-    echo "No release selected, using openSUSE Leap 42.2"
-    DISTRO="leap/42.2"
+    echo "No release selected, using openSUSE Leap 15.0"
+    DISTRO="leap/15.0"
 else
     echo ""
     case "$DISTRO" in
@@ -492,23 +492,30 @@ else
 	    echo "Selected openSUSE 13.2"
 	    ;;
 
-	42.1|leap/42.1|leap)
+	42.1|leap/42.1|421)
 	    echo "Selected openSUSE Leap 42.1"
 	    DISTRO="leap/42.1"
 	    ;;
 
-        42.2|leap/42.2|422)
-            echo "Selected openSUSE Leap 42.2"
-            DISTRO="leap/42.2"
-            ;;
-        42.3|leap/42.3|423)
-            echo "Selected openSUSE Leap 42.3"
-            DISTRO="leap/42.3"
-            ;;
-        tumbleweed|factory)
-            echo "Selected openSUSE Leap Tumbleweed"
-            DISTRO="tumbleweed"
-            ;;
+    42.2|leap/42.2|422)
+        echo "Selected openSUSE Leap 42.2"
+        DISTRO="leap/42.2"
+        ;;
+
+    42.3|leap/42.3|423)
+        echo "Selected openSUSE Leap 42.3"
+        DISTRO="leap/42.3"
+        ;;
+
+    15.0|leap/15.0|150|leap)
+        echo "Selected openSUSE Leap 15.0"
+        DISTRO="leap/15.0"
+        ;;
+
+    tumbleweed|factory)
+        echo "Selected openSUSE Leap Tumbleweed"
+        DISTRO="tumbleweed"
+        ;;
 
 	*)
 	    echo "You have chosen an invalid release, quitting..."
