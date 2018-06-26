@@ -178,7 +178,9 @@ EOF
 
     if [[ $DISTRO == "tumbleweed" ]]; then
         echo "Preinstall: liblua5_3 libncurses6 libreadline7" >> $cache/partial-$arch-packages/opensuse.conf
-    else
+    elif [[ $DISTRO == "leap/1"* ]]; then
+        echo "Preinstall: liblua5_3-5 libncurses6 libreadline7" >> $cache/partial-$arch-packages/opensuse.conf
+    elif [[ $DISTRO == "leap/4"* ]]; then
         echo "Preinstall: liblua5_1 libncurses5 libreadline6" >> $cache/partial-$arch-packages/opensuse.conf
         echo "Support: rpcbind" >> $cache/partial-$arch-packages/opensuse.conf
     fi
@@ -196,8 +198,12 @@ EOF
 
     # openSUSE 13.2 has no noarch directory in update
     [ -d $cache/partial-$arch-packages/var/cache/zypp/packages/update/noarch ] || mkdir -p $cache/partial-$arch-packages/var/cache/zypp/packages/update/noarch
-
-    repos=("--repository" "$cache/partial-$arch-packages/var/cache/zypp/packages/repo-oss/suse/$arch" "--repository" "$cache/partial-$arch-packages/var/cache/zypp/packages/repo-oss/suse/noarch")
+    if [[ $DISTRO == "leap/4"* ]]; then
+        repos=("--repository" "$cache/partial-$arch-packages/var/cache/zypp/packages/repo-oss/suse/$arch" "--repository" "$cache/partial-$arch-packages/var/cache/zypp/packages/repo-oss/suse/noarch")
+    else
+        # Leap 15 has a different repo structure compared to 42.3
+        repos=("--repository" "$cache/partial-$arch-packages/var/cache/zypp/packages/repo-oss/$arch" "--repository" "$cache/partial-$arch-packages/var/cache/zypp/packages/repo-oss/noarch")
+    fi
     if [[ $DISTRO != "tumbleweed" ]]; then # tumbleweed has no update repo
         repos+=("--repository" "$cache/partial-$arch-packages/var/cache/zypp/packages/update/$arch" "--repository" "$cache/partial-$arch-packages/var/cache/zypp/packages/update/noarch")
     fi
