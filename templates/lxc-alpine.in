@@ -401,6 +401,9 @@ configure_container() {
 		# Comment this out if you have to debug processes by tracing.
 		lxc.cap.drop = sys_ptrace
 
+		# Comment this out if required by your applications.
+		lxc.cap.drop = setpcap
+
 		# Include common configuration.
 		lxc.include = $LXC_TEMPLATE_CONFIG/alpine.common.conf
 	EOF
