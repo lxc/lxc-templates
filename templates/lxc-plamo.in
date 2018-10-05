@@ -374,7 +374,7 @@ usage() {
 prog=`basename $0`
 path="" ; name="" ; rootfs=""
 clean=0
-release=${release:-6.x}
+release=${release:-7.x}
 arch=`uname -m | sed 's/i.86/x86/'` ; hostarch=$arch
 bindhome=""
 sopts=hp:n:cr:a:b:
