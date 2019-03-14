@@ -123,6 +123,7 @@ install_plamo() {
        pkgtool="pkgtools"
     else
        pkgtool="hdsetup"
+       LANG=C
     fi
 
     ( cd $dlcache ; tar xpJf "$pkgtool"-*.txz ; rm -rf tmp usr var )
