@@ -52,7 +52,10 @@ download_plamo() {
   # download a mini plamo into a cache
   echo "Downloading Plamo-$release minimal..."
   cd $ptcache
-  case $DLSCHEME in http) depth=2 ;; ftp) depth=3 ;; esac
+  case $DLSCHEME in
+      http|https) depth=2 ;;
+      ftp) depth=3 ;;
+  esac
   rej=${IGNOREPKGS%% *} ; [ -n "$rej" ] && rej="$rej-*"
   if [ `echo $IGNOREPKGS | wc -w` -gt 1 ] ; then
     for p in ${IGNOREPKGS#* } ; do rej="$rej,$p-*" ; done
@@ -429,7 +432,7 @@ else
     ADDONPKGS=${ADDONPKGS-"`echo contrib/Hamradio/{morse,qrq}`"}
 fi
 
-DLSCHEME=${DLSCHEME:-"http"}
+DLSCHEME=${DLSCHEME:-"https"}
 MIRRORSRV=${MIRRORSRV:-"repository.plamolinux.org"}
 MIRRORPATH=${MIRRORPATH:-"/pub/linux/Plamo"}
 CATEGORIES=${CATEGORIES-"00_base 01_minimum"}
