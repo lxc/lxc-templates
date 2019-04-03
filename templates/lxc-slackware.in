@@ -566,6 +566,7 @@ grep
 gzip
 hostname
 iputils
+libpsl
 libunistring
 logrotate
 mpfr
@@ -574,6 +575,7 @@ network-scripts
 ncurses
 openssh
 openssl-solibs
+pcre2
 pkgtools
 procps-ng
 sed
