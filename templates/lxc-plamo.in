@@ -281,18 +281,12 @@ configure_plamo7() {
 	SERVICE="dhclient"
 	EOF
 
-    # initpkg
+    # remove initpkg that does not exec
     noexec="shadow netconfig7 eudev openssh"
     for f in $noexec
     do
       rm -f $rootfs/var/log/initpkg/"$f"
     done
-    pushd $rootfs
-    for f in var/log/initpkg/*
-    do
-      chroot $rootfs sh ./$f
-    done
-    popd
 }
 
 configure_plamo() {
