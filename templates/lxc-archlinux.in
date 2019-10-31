@@ -48,7 +48,7 @@ shared_config="@LXCTEMPLATECONFIG@/archlinux.common.conf"
 
 # by default, install 'base' except the kernel
 pkg_blacklist="linux"
-base_packages=()
+base_packages=("systemd-sysvcompat")
 for pkg in $(pacman -Sqg base); do
    [ "${pkg_blacklist#*$pkg}" = "$pkg_blacklist" ] && base_packages+=($pkg)
 done
