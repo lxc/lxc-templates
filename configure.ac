@@ -164,6 +164,8 @@ AC_CONFIG_FILES([
 	config/gentoo.common.conf
 	config/gentoo.moresecure.conf
 	config/gentoo.userns.conf
+	config/kali.common.conf
+	config/kali.userns.conf
 	config/opensuse.common.conf
 	config/opensuse.userns.conf
 	config/oracle.common.conf
@@ -196,6 +198,7 @@ AC_CONFIG_FILES([
 	templates/lxc-fedora
 	templates/lxc-fedora-legacy
 	templates/lxc-gentoo
+	templates/lxc-kali
 	templates/lxc-openmandriva
 	templates/lxc-opensuse
 	templates/lxc-oracle
