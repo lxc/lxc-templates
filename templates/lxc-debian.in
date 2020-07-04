@@ -186,10 +186,12 @@ EOF
     # set initial timezone as on host
     if [ -f /etc/timezone ]; then
         cat /etc/timezone > "$rootfs/etc/timezone"
+        rm -f "$rootfs/etc/localtime"
         chroot "$rootfs" dpkg-reconfigure -f noninteractive tzdata
     elif [ -f /etc/sysconfig/clock ]; then
         . /etc/sysconfig/clock
         echo "$ZONE" > "$rootfs/etc/timezone"
+        rm -f "$rootfs/etc/localtime"
         chroot "$rootfs" dpkg-reconfigure -f noninteractive tzdata
     else
         echo "Timezone in container is not configured. Adjust it manually."
