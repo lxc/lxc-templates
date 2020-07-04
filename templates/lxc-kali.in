@@ -621,6 +621,8 @@ Environment variables:
 
   MIRROR                 The Kali package mirror to use. See also the --mirror switch above.
                          Defaults to '$MIRROR'
+  DOWNLOAD_KEYRING       Sets whether to download keyring when missing or ignore keyring checks
+                         Defaults to '1'
 EOF
     return 0
 }
