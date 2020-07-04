@@ -650,7 +650,7 @@ Environment variables:
   SECURITY_MIRROR        The Debian package security mirror to use. See also the --security-mirror switch above.
                          Defaults to '$SECURITY_MIRROR'
   DOWNLOAD_KEYRING       Sets whether to download keyring when missing or ignore keyring checks
-                         Defaults to '1'
+                         Defaults to 1
 
 EOF
     return 0
