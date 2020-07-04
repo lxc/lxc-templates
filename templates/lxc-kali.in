@@ -221,7 +221,7 @@ write_sourceslist()
     fi
 
     cat >> "${rootfs}/etc/apt/sources.list" << EOF
-${prefix} $MIRROR          ${release}         main${non_main}
+${prefix} $MIRROR ${release} main${non_main}
 EOF
 
 }
