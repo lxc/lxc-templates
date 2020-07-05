@@ -594,6 +594,11 @@ EOF
 
     # Re-enable service startup
     rm "${rootfs}/usr/sbin/policy-rc.d"
+
+    # Fix by Greg Olsen, avoid warning 'stdin not a tty' in some cases
+    if [[ -f "${rootfs}/root/.profile" ]]; then
+       sed -i -e 's/^mesg n/test -t 0 \&\& mesg n/g' ${rootfs}/root/.profile
+    fi
     
     # end
 }
