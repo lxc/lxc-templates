@@ -7,9 +7,11 @@ templates_SCRIPTS = \
 	lxc-centos \
 	lxc-cirros \
 	lxc-debian \
+	lxc-devuan \
 	lxc-fedora \
 	lxc-fedora-legacy \
 	lxc-gentoo \
+	lxc-kali \
 	lxc-openmandriva \
 	lxc-opensuse \
 	lxc-oracle \
