@@ -5,6 +5,8 @@
 
 # Authors:
 # Daniel Lezcano <daniel.lezcano@free.fr>
+# Greg Olsen     <gregolsen@computer.org>  (lxc-devuan)
+# Tanya          <tanyadegurechaff@waifu.club>
 
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -40,6 +42,7 @@ LOCALSTATEDIR="@LOCALSTATEDIR@"
 LXC_TEMPLATE_CONFIG="@LXCTEMPLATECONFIG@"
 # Allows the lxc-cache directory to be set by environment variable
 LXC_CACHE_PATH=${LXC_CACHE_PATH:-"$LOCALSTATEDIR/cache/lxc"}
+[ -z "$DOWNLOAD_KEYRING" ] && DOWNLOAD_KEYRING=1
 
 find_interpreter()
 {
@@ -119,6 +122,17 @@ EOF
 $hostname
 EOF
 
+    # set minimal hosts
+    cat <<EOF > $rootfs/etc/hosts
+127.0.0.1   localhost
+127.0.1.1   $hostname
+
+# The following lines are desirable for IPv6 capable hosts
+::1     localhost ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+EOF
+
     # reconfigure some services
 
     # but first reconfigure locales - so we get no noisy perl-warnings
@@ -173,10 +187,12 @@ EOF
     # set initial timezone as on host
     if [ -f /etc/timezone ]; then
         cat /etc/timezone > "$rootfs/etc/timezone"
+        rm -f "$rootfs/etc/localtime"
         chroot "$rootfs" dpkg-reconfigure -f noninteractive tzdata
     elif [ -f /etc/sysconfig/clock ]; then
         . /etc/sysconfig/clock
         echo "$ZONE" > "$rootfs/etc/timezone"
+        rm -f "$rootfs/etc/localtime"
         chroot "$rootfs" dpkg-reconfigure -f noninteractive tzdata
     else
         echo "Timezone in container is not configured. Adjust it manually."
@@ -211,7 +227,7 @@ write_sourceslist()
     fi
 
     cat >> "${rootfs}/etc/apt/sources.list" << EOF
-${prefix} $MIRROR          ${release}         main${non_main}
+${prefix} $MIRROR ${release} main${non_main}
 EOF
 
     if [ "$release" != "unstable" -a "$release" != "sid" ]; then
@@ -348,18 +364,32 @@ openssh-server
 
     # If debian-archive-keyring isn't installed, fetch GPG keys directly
     releasekeyring=/usr/share/keyrings/debian-archive-keyring.gpg
-    if [ ! -f $releasekeyring ]; then
-        releasekeyring="$cache/archive-key.gpg"
-        case $release in
-            "wheezy")
-                gpgkeyname="archive-key-7.0"
-                ;;
-            *)
-                gpgkeyname="archive-key-8"
-                ;;
-        esac
-        wget https://ftp-master.debian.org/keys/${gpgkeyname}.asc -O - --quiet \
-            | gpg --import --no-default-keyring --keyring="${releasekeyring}"
+    lreleasekeyring=/etc/apt/trusted.gpg.d/debian-archive-$release-stable.gpg
+    if [ -f "$releasekeyring" ]; then
+        apt_gpg_opt="--keyring=${releasekeyring}"
+    elif [ -f "$lreleasekeyring" ]; then
+        apt_gpg_opt="--keyring=${lreleasekeyring}"
+    elif [ "$DOWNLOAD_KEYRING" = 1 ]; then 
+        [ ! -d "/etc/apt/trusted.gpg.d" ] && lreleasekeyring="$cache/archive-key.gpg"
+        if [[ "$(id -u)" == "0" ]]; then
+            case $release in
+                "wheezy")
+                    gpgkeyname="archive-key-7.0"
+                    ;;
+                *)
+                    gpgkeyname="archive-key-8"
+                    ;;
+            esac
+            wget https://ftp-master.debian.org/keys/${gpgkeyname}.asc -O - --quiet \
+                | gpg --import --no-default-keyring --keyring="${lreleasekeyring}"
+            apt_gpg_opt="--keyring=${lreleasekeyring}"
+        else
+           echo "Must be root (sudo) to save $lreleasekeyring"
+        fi
+    fi
+    if [ -z "$apt_gpg_opt" ]; then
+        echo "WARNING: No GPG check"
+        apt_gpg_opt='--no-check-gpg'
     fi
     # check the mini debian was not already downloaded
     try_mksubvolume "$cache/partial-$release-$arch"
@@ -372,7 +402,7 @@ openssh-server
     echo "Downloading debian minimal ..."
     if [ "$interpreter" = "" ] ; then
         debootstrap --verbose --variant=minbase --arch="$arch" \
-            --include=$packages --keyring="${releasekeyring}" \
+            --include=$packages "${apt_gpg_opt}" \
             "$release" "$cache/partial-$release-$arch" "$MIRROR"
         if [ $? -ne 0 ]; then
             echo "Failed to download the rootfs, aborting."
@@ -380,7 +410,7 @@ openssh-server
         fi
     else
         debootstrap --foreign --verbose --variant=minbase --arch="$arch" \
-            --include=$packages --keyring="${releasekeyring}" \
+            --include=$packages "${apt_gpg_opt}" \
             "$release" "$cache/partial-$release-$arch" "$MIRROR"
         if [ $? -ne 0 ]; then
             echo "Failed to download the rootfs, aborting."
@@ -565,6 +595,11 @@ EOF
 
     # Re-enable service startup
     rm "${rootfs}/usr/sbin/policy-rc.d"
+
+    # Fix by Greg Olsen, avoid warning 'stdin not a tty' in some cases
+    if [[ -f "${rootfs}/root/.profile" ]]; then
+       sed -i -e 's/^mesg n/test -t 0 \&\& mesg n/g' ${rootfs}/root/.profile
+    fi
     
     # end
 }
@@ -633,6 +668,8 @@ Environment variables:
                          Defaults to '$MIRROR'
   SECURITY_MIRROR        The Debian package security mirror to use. See also the --security-mirror switch above.
                          Defaults to '$SECURITY_MIRROR'
+  DOWNLOAD_KEYRING       Sets whether to download keyring when missing or ignore keyring checks
+                         Defaults to 1
 
 EOF
     return 0
