@@ -9,11 +9,15 @@ templatesconfig_DATA = \
 	centos.userns.conf \
 	debian.common.conf \
 	debian.userns.conf \
+	devuan.common.conf \
+	devuan.userns.conf \
 	fedora.common.conf \
 	fedora.userns.conf \
 	gentoo.common.conf \
 	gentoo.moresecure.conf \
 	gentoo.userns.conf \
+	kali.common.conf \
+	kali.userns.conf \
 	opensuse.common.conf \
 	opensuse.userns.conf \
 	oracle.common.conf \
