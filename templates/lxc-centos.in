@@ -389,8 +389,8 @@ configure_centos_init()
     chroot ${rootfs_path} chkconfig network on
 
     if [ "$release" = "7" ]; then
-	# don't wait for the timeout
-	chroot ${rootfs_path} chkconfig systemd-remount-fs off
+        # don't wait for the timeout
+        chroot ${rootfs_path} chkconfig systemd-remount-fs off
     fi
 
     if [ -d ${rootfs_path}/etc/init ]
@@ -435,13 +435,13 @@ download_centos()
     REPO_FILE=$INSTALL_ROOT/etc/yum.repos.d/lxc-centos-temp.repo
     mkdir -p $(dirname $REPO_FILE)
     if [ -n "$repo" ]; then
-	cat <<EOF > $REPO_FILE
+        cat <<EOF > $REPO_FILE
 [base]
 name=local repository
 baseurl="$repo"
 EOF
     elif [ ${basearch} = 'i386' ] || [ ${basearch} = 'x86_64' ]; then
-	cat <<EOF > $REPO_FILE
+        cat <<EOF > $REPO_FILE
 [base]
 name=CentOS-$release - Base
 mirrorlist=http://mirrorlist.centos.org/?release=$release&arch=$basearch&repo=os
@@ -451,7 +451,7 @@ name=CentOS-$release - Updates
 mirrorlist=http://mirrorlist.centos.org/?release=$release&arch=$basearch&repo=updates
 EOF
     else
-	cat <<EOF > $REPO_FILE
+        cat <<EOF > $REPO_FILE
 [base]
 name=CentOS-$release - Base
 baseurl=http://mirror.centos.org/altarch/7/os/$basearch/

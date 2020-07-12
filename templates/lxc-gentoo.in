@@ -455,7 +455,7 @@ container_portage()
     printf "trying to guess portage distfiles dir from host ...\n"
     portage_distfiles_dir="$(portageq distdir 2>/dev/null)"
     if [ ! -d "${portage_distfiles_dir}" ]; then
-	portage_distfiles_dir="${portage_dir}/distfiles"
+        portage_distfiles_dir="${portage_dir}/distfiles"
     fi
 
     # if we are here, we have shared portage_dir

@@ -32,9 +32,9 @@
 
 # Check if array $2 contains item $1
 containsElement() {
-	local e
-	for e in "${@:2}"; do [[ "$1" == "$e" ]] && return 0; done
-	return 1
+    local e
+    for e in "${@:2}"; do [[ "$1" == "$e" ]] && return 0; done
+    return 1
 }
 
 # split comma-separated string into an array

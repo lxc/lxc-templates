@@ -233,9 +233,9 @@ EOF
 
     # allow root login on console, tty[1-4], and pts/0 for libvirt
     echo "# LXC (Linux Containers)" >>$container_rootfs/etc/securetty
-    echo "lxc/console"	>>$container_rootfs/etc/securetty
+    echo "lxc/console" >>$container_rootfs/etc/securetty
     for i in 1 2 3 4; do
-        echo "lxc/tty$i"	>>$container_rootfs/etc/securetty
+        echo "lxc/tty$i" >>$container_rootfs/etc/securetty
     done
     echo "# For libvirt/Virtual Machine Monitor" >>$container_rootfs/etc/securetty
     for i in 0 1 2 3 4; do

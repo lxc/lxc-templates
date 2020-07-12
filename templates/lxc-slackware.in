@@ -499,8 +499,8 @@ mkdir -p /var/lock/subsys/
 (
 flock -n -x 9
 if [ $? -ne 0 ]; then
-	echo "Cache repository is busy."
-	return 1
+    echo "Cache repository is busy."
+    return 1
 fi
 
 if [ "$arch" == "x86_64" ]; then
@@ -508,7 +508,7 @@ if [ "$arch" == "x86_64" ]; then
 elif [ "$arch" == "arm" ]; then
         PKGMAIN=slackwarearm
 else
-	PKGMAIN=slackware
+    PKGMAIN=slackware
 fi
 
 export CONF=$cache/slackpkg-conf
@@ -651,8 +651,8 @@ lxc.include = ${LXC_TEMPLATE_CONFIG}/slackware.common.conf
 EOF
 
 if [ $? -ne 0 ]; then
-	echo "Failed to add configuration."
-	return 1
+    echo "Failed to add configuration."
+    return 1
 fi
 
 return 0
@@ -661,15 +661,15 @@ return 0
 clean()
 {
 if [ ! -e $cache ]; then
-	exit 0
+    exit 0
 fi
 
 # lock, so we won't purge while someone is creating a repository
 (
 flock -n -x 9
 if [ $? != 0 ]; then
-	echo "Cache repository is busy."
-	exit 1
+    echo "Cache repository is busy."
+    exit 1
 fi
 
 echo -n "Purging the download cache..."
@@ -689,8 +689,8 @@ return 0
 
 options=$(getopt -o hp:n:a:r:c -l help,rootfs:,path:,name:,arch:,release:,clean --  "$@")
 if [ $? -ne 0 ]; then
-	usage $(basename $0)
-	exit 1
+    usage $(basename $0)
+    exit 1
 fi
 eval set -- "$options"
 
@@ -699,59 +699,59 @@ do
 case "$1" in
         -h|--help)      usage $0 && exit 0;;
         -p|--path)      path=$2; shift 2;;
-	--rootfs)       rootfs=$2; shift 2;;
-	-a|--arch)      arch=$2; shift 2;; 
-	-r|--release)   release=$2; shift 2;;
-	-n|--name)      name=$2; shift 2;;
-	-c|--clean)     clean=$2; shift 2;;
+        --rootfs)       rootfs=$2; shift 2;;
+        -a|--arch)      arch=$2; shift 2;; 
+        -r|--release)   release=$2; shift 2;;
+        -n|--name)      name=$2; shift 2;;
+        -c|--clean)     clean=$2; shift 2;;
         --)             shift 1; break ;;
         *)              break ;;
 esac
 done
 
 if [ ! -z "$clean" -a -z "$path" ]; then
-	clean || exit 1
-	exit 0
+    clean || exit 1
+    exit 0
 fi
 
 type installpkg
 if [ $? -ne 0 ]; then
-	echo "'installpkg' command is missing."
-	exit 1
+    echo "'installpkg' command is missing."
+    exit 1
 fi
 
 type slackpkg
 if [ $? -ne 0 ]; then
-	echo "'slackpkg' command is missing."
-	exit 1
+    echo "'slackpkg' command is missing."
+    exit 1
 fi
 
 if [ -z "$path" ]; then
-	echo "'path' parameter is required."
-	exit 1
+    echo "'path' parameter is required."
+    exit 1
 fi
 
 if [ "$(id -u)" != "0" ]; then
-	echo "This script should be run as 'root'."
-	exit 1
+    echo "This script should be run as 'root'."
+    exit 1
 fi
 
 # If no release version was specified, use current
 release=${release:-current}
 
 if [ -z "$name" ]; then
-	# no name given? set a default one
-	name=slackwarecontainer
+    # no name given? set a default one
+    name=slackwarecontainer
 fi
 
 # detect rootfs
 config="$path/config"
 if [ -z "$rootfs" ]; then
-	if grep -q '^lxc.rootfs.path' $config 2>/dev/null ; then
-		rootfs=$(awk -F= '/^lxc.rootfs.path =/{ print $2 }' $config)
-	else
-		rootfs=$path/rootfs
-	fi
+    if grep -q '^lxc.rootfs.path' $config 2>/dev/null ; then
+        rootfs=$(awk -F= '/^lxc.rootfs.path =/{ print $2 }' $config)
+    else
+        rootfs=$path/rootfs
+    fi
 fi
 
 echo
@@ -760,16 +760,16 @@ set -e
 
 install_slackware $rootfs
 if [ $? -ne 0 ]; then
-	echo "Failed to install slackware."
-	exit 1
+    echo "Failed to install slackware."
+    exit 1
 fi
 
 echo
 
 configure_slackware $cache/rootfs-$release-$arch $name
 if [ $? -ne 0 ]; then
-	echo "Failed to configure slackware for a container."
-	exit 1
+    echo "Failed to configure slackware for a container."
+    exit 1
 fi
 
 echo
@@ -777,19 +777,19 @@ echo
 rootfs=$path/rootfs
 copy_slackware $rootfs
 if [ $? -ne 0 ]; then
-	echo "Failed to copy rootfs."
-	exit 1
+    echo "Failed to copy rootfs."
+    exit 1
 fi
 
 echo
 
 copy_configuration $path $rootfs $name
 if [ $? -ne 0 ]; then
-	echo "Failed to write configuration file."
-	exit 1
+    echo "Failed to write configuration file."
+    exit 1
 fi
 
 if [ ! -z $clean ]; then
-	clean || exit 1
-	exit 0
+    clean || exit 1
+    exit 0
 fi
