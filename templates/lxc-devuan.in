@@ -320,12 +320,14 @@ download_devuan()
 init,\
 ifupdown,\
 locales,\
+ca-certificates,\
 dialog,\
 isc-dhcp-client,\
 netbase,\
 net-tools,\
 iproute2,\
-openssh-server
+openssh-server,\
+apt-transport-https
 
     cache=$1
     arch=$2

@@ -326,13 +326,15 @@ download_kali()
 $init,\
 ifupdown,\
 locales,\
+ca-certificates,\
 dialog,\
 isc-dhcp-client,\
 netbase,\
 net-tools,\
 $iproute,\
 openssh-server,\
-kali-archive-keyring
+kali-archive-keyring,\
+apt-transport-https
 
     cache=$1
     arch=$2
