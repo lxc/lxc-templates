@@ -178,7 +178,7 @@ configure_openmandriva_systemd()
     unlink ${rootfs_path}/etc/systemd/system/default.target
     chroot ${rootfs_path} ln -s /lib/systemd/system/multi-user.target /etc/systemd/system/default.target
     sed -i 's!ConditionPathExists=/dev/tty0!ConditionPathExists=|/dev/tty0\nConditionVirtualization=|lxc!' \
-	    ${rootfs_path}/lib/systemd/system/getty\@.service
+        ${rootfs_path}/lib/systemd/system/getty\@.service
 }
 
 

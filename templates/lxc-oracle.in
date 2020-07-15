@@ -148,21 +148,21 @@ EOF
         # with newer systemd (OL7.2), getty service include container-getty.service
         # let that be the one who manage the getty service instead
         if [ ! -f $container_rootfs/usr/lib/systemd/system/container-getty@.service ]; then
-        	# from mhw in the fedora template: We do need to disable the
-        	# "ConditionalPathExists=/dev/tty0" line or no gettys are started on
-        	# the ttys in the container. Lets do it in an override copy of the
-        	# service so it can still pass rpm verifies and not be automatically
-        	# updated by a new systemd version.
-        	sed -e 's/^ConditionPathExists=/#LXC ConditionPathExists=/' \
-            		< $container_rootfs/usr/lib/systemd/system/getty\@.service \
-            		> $container_rootfs/etc/systemd/system/getty\@.service
-        	# Setup getty service on the 4 ttys we are going to allow in the
-        	# default config.  Number should match lxc.tty
-        	( cd $container_rootfs/etc/systemd/system/getty.target.wants
-            		for i in 1 2 3 4 ; do ln -sf ../getty\@.service getty@tty${i}.service; done )
-        	# We only want to spawn a getty on /dev/console in lxc, libvirt-lxc
-        	# symlinks /dev/console to /dev/tty1
-        	sed -i '/Before=getty.target/a ConditionVirtualization=lxc' $container_rootfs/usr/lib/systemd/system/console-getty.service
+            # from mhw in the fedora template: We do need to disable the
+            # "ConditionalPathExists=/dev/tty0" line or no gettys are started on
+            # the ttys in the container. Lets do it in an override copy of the
+            # service so it can still pass rpm verifies and not be automatically
+            # updated by a new systemd version.
+            sed -e 's/^ConditionPathExists=/#LXC ConditionPathExists=/' \
+                    < $container_rootfs/usr/lib/systemd/system/getty\@.service \
+                    > $container_rootfs/etc/systemd/system/getty\@.service
+            # Setup getty service on the 4 ttys we are going to allow in the
+            # default config.  Number should match lxc.tty
+            ( cd $container_rootfs/etc/systemd/system/getty.target.wants
+                    for i in 1 2 3 4 ; do ln -sf ../getty\@.service getty@tty${i}.service; done )
+            # We only want to spawn a getty on /dev/console in lxc, libvirt-lxc
+            # symlinks /dev/console to /dev/tty1
+            sed -i '/Before=getty.target/a ConditionVirtualization=lxc' $container_rootfs/usr/lib/systemd/system/console-getty.service
         fi
 
         # disable some systemd services, set default boot, sigpwr target
@@ -307,9 +307,9 @@ EOF
     # some of these might not exist in the image, so we silence chkconfig complaining
     # about the service file not being found
     for service in \
-        acpid apmd auditd autofs cpuspeed dund gpm haldaemon hidd	\
-        ip6tables irqbalance iscsi iscsid isdn kdump kudzu		\
-        lm_sensors lvm2-monitor mdmonitor microcode_ctl			\
+        acpid apmd auditd autofs cpuspeed dund gpm haldaemon hidd    \
+        ip6tables irqbalance iscsi iscsid isdn kdump kudzu      \
+        lm_sensors lvm2-monitor mdmonitor microcode_ctl         \
         ntpd pcmcia postfix sendmail udev-post xfs ;
     do
         chroot $container_rootfs chkconfig 2>/dev/null $service off
@@ -363,13 +363,13 @@ EOF
 
     # allow root login on console, tty[1-4], and pts/0 for libvirt
     echo "# LXC (Linux Containers)" >>$container_rootfs/etc/securetty
-    echo "lxc/console"	>>$container_rootfs/etc/securetty
+    echo "lxc/console" >>$container_rootfs/etc/securetty
     for i in 1 2 3 4; do
-        echo "lxc/tty$i"	>>$container_rootfs/etc/securetty
+        echo "lxc/tty$i" >>$container_rootfs/etc/securetty
     done
     echo "# For libvirt/Virtual Machine Monitor" >>$container_rootfs/etc/securetty
     for i in 0 1 2 3 4; do
-        echo "pts/$i"        >>$container_rootfs/etc/securetty
+        echo "pts/$i" >>$container_rootfs/etc/securetty
     done
 
     # prevent mingetty from calling vhangup(2) since it fails with userns
@@ -511,7 +511,7 @@ EOF
 
     lxc_network_hwaddr=`grep '^lxc.net.0.hwaddr' $cfg_dir/config | awk -F'[= \t]+' '{ print $2 }'`
     if [ -z "$lxc_network_hwaddr" ]; then
-	# generate a hwaddr for the container
+        # generate a hwaddr for the container
         # see http://sourceforge.net/tracker/?func=detail&aid=3411497&group_id=163076&atid=826303
         local hwaddr="00:16:3e:`dd if=/dev/urandom bs=8 count=1 2>/dev/null |od -t x8 | \
                         head -n1 | awk '{print $2}' | cut -c1-6 | \
@@ -850,19 +850,19 @@ eval set -- "$options"
 while true
 do
     case "$1" in
-        -h|--help)		usage $0 && exit 0;;
-        -p|--path)		cfg_dir=$2; shift 2;;
-        --rootfs)		container_rootfs=$2; shift 2;;
-        -n|--name)		name=$2; shift 2;;
-        -a|--arch)		arch=$2; shift 2;;
-        -R|--release)		container_release_version=$2; shift 2;;
-        -r|--rpms)		user_pkgs=$2; shift 2;;
-        -u|--url)		repourl=$2; shift 2;;
-        -t|--templatefs)	template_rootfs=$2; shift 2;;
-        --patch)		patch_rootfs=$2; shift 2;;
-        --baseurl)		baseurl=$2; shift 2;;
-        --)             	shift 1; break ;;
-        *)              	break ;;
+        -h|--help)      usage $0 && exit 0;;
+        -p|--path)      cfg_dir=$2; shift 2;;
+        --rootfs)       container_rootfs=$2; shift 2;;
+        -n|--name)      name=$2; shift 2;;
+        -a|--arch)      arch=$2; shift 2;;
+        -R|--release)       container_release_version=$2; shift 2;;
+        -r|--rpms)      user_pkgs=$2; shift 2;;
+        -u|--url)       repourl=$2; shift 2;;
+        -t|--templatefs)    template_rootfs=$2; shift 2;;
+        --patch)        patch_rootfs=$2; shift 2;;
+        --baseurl)      baseurl=$2; shift 2;;
+        --)                 shift 1; break ;;
+        *)                  break ;;
     esac
 done
 

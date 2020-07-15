@@ -453,8 +453,8 @@ fi
 if grep -q Harlequin /etc/os-release || grep -q Tumbleweed /etc/os-release ; then
     BVER=`rpm -q --qf '%{version}\n' build`
     if [ $? -ne 0 -o "$BVER" -lt "20141120" ]; then
-	echo "Building openSUSE containers with your version of the build package is broken. Please install the update to version 20141120 or newer."
-	exit 1
+        echo "Building openSUSE containers with your version of the build package is broken. Please install the update to version 20141120 or newer."
+        exit 1
     fi
 fi
 
@@ -465,43 +465,43 @@ if [ -z "$DISTRO" ]; then
 else
     echo ""
     case "$DISTRO" in
-	13.1)
-	    echo "Selected openSUSE 13.1"
-	    ;;
+        13.1)
+            echo "Selected openSUSE 13.1"
+            ;;
 
-	13.2)
-	    echo "Selected openSUSE 13.2"
-	    ;;
+        13.2)
+            echo "Selected openSUSE 13.2"
+            ;;
 
-	42.1|leap/42.1|421)
-	    echo "Selected openSUSE Leap 42.1"
-	    DISTRO="leap/42.1"
-	    ;;
+        42.1|leap/42.1|421)
+            echo "Selected openSUSE Leap 42.1"
+            DISTRO="leap/42.1"
+            ;;
 
-    42.2|leap/42.2|422)
-        echo "Selected openSUSE Leap 42.2"
-        DISTRO="leap/42.2"
-        ;;
+        42.2|leap/42.2|422)
+            echo "Selected openSUSE Leap 42.2"
+            DISTRO="leap/42.2"
+            ;;
 
-    42.3|leap/42.3|423)
-        echo "Selected openSUSE Leap 42.3"
-        DISTRO="leap/42.3"
-        ;;
+        42.3|leap/42.3|423)
+            echo "Selected openSUSE Leap 42.3"
+            DISTRO="leap/42.3"
+            ;;
 
-    15.0|leap/15.0|150|leap)
-        echo "Selected openSUSE Leap 15.0"
-        DISTRO="leap/15.0"
-        ;;
+        15.0|leap/15.0|150|leap)
+            echo "Selected openSUSE Leap 15.0"
+            DISTRO="leap/15.0"
+            ;;
 
-    tumbleweed|factory)
-        echo "Selected openSUSE Leap Tumbleweed"
-        DISTRO="tumbleweed"
-        ;;
+        tumbleweed|factory)
+            echo "Selected openSUSE Leap Tumbleweed"
+            DISTRO="tumbleweed"
+            ;;
 
-	*)
-	    echo "You have chosen an invalid release, quitting..."
-	    exit 1
-	    ;;
+        *)
+            echo "You have chosen an invalid release, quitting..."
+            exit 1
+            ;;
     esac
 fi
 

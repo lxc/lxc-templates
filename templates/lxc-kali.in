@@ -326,13 +326,15 @@ download_kali()
 $init,\
 ifupdown,\
 locales,\
+ca-certificates,\
 dialog,\
 isc-dhcp-client,\
 netbase,\
 net-tools,\
 $iproute,\
 openssh-server,\
-kali-archive-keyring
+kali-archive-keyring,\
+apt-transport-https
 
     cache=$1
     arch=$2
@@ -746,14 +748,14 @@ fi
 
 if [ -n "$authkey" ]; then
     if [ ! -f "$authkey" ]; then
-	echo "SSH keyfile '$authkey' not found"
-	exit 1
+        echo "SSH keyfile '$authkey' not found"
+        exit 1
     fi
     # This is mostly to prevent accidental uage of the private key instead
     # of the public key.
     if [ "${authkey: -4}" != ".pub" ]; then
-	echo "SSH keyfile '$authkey' does not end with '.pub'"
-	exit 1
+        echo "SSH keyfile '$authkey' does not end with '.pub'"
+        exit 1
     fi
 fi
 

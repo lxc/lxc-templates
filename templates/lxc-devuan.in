@@ -67,6 +67,16 @@ find_interpreter()
     return 1
 }
 
+release_info() {
+    if wget "${1}/dists/${release}/Release" -O /dev/null --quiet 2> /dev/null; then
+        local release_file=$(wget "${1}/dists/${release}/Release" -O - --quiet 2> /dev/null)
+        distro_suite=${release_file#*Suite: }
+        distro_suite=${distro_suite%%$'\n'*}
+        return 0
+    fi
+    return 1
+}
+
 configure_devuan()
 {
     rootfs=$1
@@ -240,14 +250,26 @@ EOF
     fi
 }
 
+apt_update_packages(){
+    local apt_update_args="update"
+    local lpath="${rootfs}/var/lib/apt/lists/$(echo "$MIRROR" | sed 's#.*://##;s#/#_#g')_dists_${release}_Release"
+    if [ -f "$lpath" ] && [ ! -z "$distro_suite" ]; then
+        local lsuite=$(cat "$lpath" | grep 'Suite:')
+        [ "${lsuite#Suite: }" != "$distro_suite" ] && apt_update_args="--allow-releaseinfo-change $apt_update_args"
+    fi
+    chroot "${rootfs}" apt-get $apt_update_args
+    return $?
+}
+
 install_packages()
 {
     local rootfs="$1"; shift
     local packages="$*"
-
-    chroot "${rootfs}" apt-get update
-    if [ -n "${packages}" ]; then
+    
+    if [ -n "${packages}" ] && apt_update_packages; then
         chroot "${rootfs}" apt-get install --force-yes -y --no-install-recommends ${packages}
+    elif [ -n "${packages}" ]; then
+        echo "Apt update failed, not downloading packages"
     fi
 }
 
@@ -298,12 +320,14 @@ download_devuan()
 init,\
 ifupdown,\
 locales,\
+ca-certificates,\
 dialog,\
 isc-dhcp-client,\
 netbase,\
 net-tools,\
 iproute2,\
-openssh-server
+openssh-server,\
+apt-transport-https
 
     cache=$1
     arch=$2
@@ -743,24 +767,26 @@ fi
 
 if [ -n "$authkey" ]; then
     if [ ! -f "$authkey" ]; then
-	echo "SSH keyfile '$authkey' not found"
-	exit 1
+        echo "SSH keyfile '$authkey' not found"
+        exit 1
     fi
     # This is mostly to prevent accidental uage of the private key instead
     # of the public key.
     if [ "${authkey: -4}" != ".pub" ]; then
-	echo "SSH keyfile '$authkey' does not end with '.pub'"
-	exit 1
+        echo "SSH keyfile '$authkey' does not end with '.pub'"
+        exit 1
     fi
 fi
 
 release=${release:-stable}
-permanent_releases=('stable' 'testing' 'ceres' 'unstable')
+permanent_releases=('stable' 'testing' 'sid' 'unstable')
 if [[ ! "${permanent_releases[*]}" =~ (^|[^[:alpha:]])$release([^[:alpha:]]|$) ]]; then
-    if ! wget "${MIRROR}/dists/${release}/Release" -O /dev/null 2> /dev/null; then
-	echo "Invalid release ${release} (not found in mirror)"
-	exit 1
+    if ! release_info "${MIRROR}"; then
+        echo "Invalid release ${release} (not found in mirror)"
+        exit 1
     fi
+else
+    release_info "${MIRROR}"
 fi
 
 # detect rootfs
