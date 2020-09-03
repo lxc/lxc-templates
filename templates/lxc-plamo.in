@@ -123,13 +123,18 @@ install_plamo() {
     echo "Installing 'installpkg' command into $dlcache/sbin..."
 
     if [ $majorver -ge 7 ]; then
-       pkgtool="pkgtools"
+      pkgtool="pkgtools"
+      pkgtool=$( cd $dlcache ; ls "$pkgtool"* )
+      pkgtool=${pkgtool%%-*}
     else
-       pkgtool="hdsetup"
-       LANG=C
+      pkgtool="hdsetup"
+      LANG=C
     fi
 
     ( cd $dlcache ; tar xpJf "$pkgtool"-*.txz ; rm -rf tmp usr var )
+    if [ $pkgtool = "pkgtools${majorver}" ]; then
+	( cd $dlcache/sbin ; mv installer_new installer )
+    fi
 
     sed -i "/ldconfig/!s@/sbin@$dlcache&@g" $dlcache/sbin/installpkg*
     PATH=$dlcache/sbin:$PATH
