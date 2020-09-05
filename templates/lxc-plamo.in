@@ -183,9 +183,6 @@ configure_plamo6() {
 	EOF
   # configure the network using the dhcp
   echo "DHCP" > $rootfs/var/run/inet1-scheme
-  # glibc configure
-  mv $rootfs/etc/ld.so.conf{.new,}
-  chroot $rootfs ldconfig
 
   # delete unnecessary process from rc.S
   ed - $rootfs/etc/rc.d/rc.S <<- "EOF"
@@ -286,18 +283,13 @@ configure_plamo7() {
 	SERVICE="dhclient"
 	EOF
 
-    # initpkg
-    noexec="shadow netconfig7 eudev openssh"
+    # remove initpkg that do not execute on containers
+    noexec="shadow netconfig7 eudev openssh pkgtools${majorver}"
     for f in $noexec
     do
       rm -f $rootfs/var/log/initpkg/"$f"
     done
-    pushd $rootfs
-    for f in var/log/initpkg/*
-    do
-      chroot $rootfs sh ./$f
-    done
-    popd
+    ( cd $rootfs/sbin ; mv installer_new installer )
 }
 
 configure_plamo() {
