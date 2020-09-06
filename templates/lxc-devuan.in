@@ -42,7 +42,7 @@ LOCALSTATEDIR="@LOCALSTATEDIR@"
 LXC_TEMPLATE_CONFIG="@LXCTEMPLATECONFIG@"
 # Allows the lxc-cache directory to be set by environment variable
 LXC_CACHE_PATH=${LXC_CACHE_PATH:-"$LOCALSTATEDIR/cache/lxc"}
-[ -z "$DOWNLOAD_KEYRING" ] && DOWNLOAD_KEYRING=1
+DOWNLOAD_KEYRING=${DOWNLOAD_KEYRING:-1}
 
 find_interpreter()
 {
@@ -350,7 +350,7 @@ apt-transport-https
     elif [ "$DOWNLOAD_KEYRING" = 1 ]; then 
         [ ! -d "/etc/apt/trusted.gpg.d" ] && lreleasekeyring="$cache/archive-key.gpg"
         if [[ "$(id -u)" == "0" ]]; then
-            wget https://git.devuan.org/devuan/devuan-keyring/raw/branch/master/keyrings/devuan-archive-keyring.gpg -O - --quiet \
+            wget https://files.devuan.org/devuan-archive-keyring.gpg -O - --quiet \
                 | gpg --import --no-default-keyring --keyring="${lreleasekeyring}"
             apt_gpg_opt="--keyring=${lreleasekeyring}"
         else
