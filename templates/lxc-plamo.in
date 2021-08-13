@@ -61,7 +61,7 @@ download_plamo() {
     for p in ${IGNOREPKGS#* } ; do rej="$rej,$p-*" ; done
   fi
   for i in $CATEGORIES ; do
-    wget -nv -e robots=off -r -l $depth -nd -A .tgz,.txz -R "$rej" \
+    wget -nv -e robots=off -r -l $depth -nd -A .tgz,.txz,.tzst -R "$rej" \
         -I $MIRRORPATH/Plamo-$release/$arch/plamo/$i \
         -X $MIRRORPATH/Plamo-$release/$arch/plamo/$i/old \
         $DLSCHEME://$MIRRORSRV$MIRRORPATH/Plamo-$release/$arch/plamo/$i
@@ -71,7 +71,7 @@ download_plamo() {
     fi
   done
   for i in $EXTRACTGRS ; do
-    wget -nv -e robots=off -r -l $depth -nd -A .tgz,.txz -R "$rej" \
+    wget -nv -e robots=off -r -l $depth -nd -A .tgz,.txz,.tzst -R "$rej" \
         -I $MIRRORPATH/Plamo-$release/$arch/contrib/$i \
         -X $MIRRORPATH/Plamo-$release/$arch/contrib/$i/old \
         $DLSCHEME://$MIRRORSRV$MIRRORPATH/Plamo-$release/$arch/contrib/$i
@@ -126,14 +126,24 @@ install_plamo() {
       pkgtool="pkgtools"
       pkgtool=$( cd $dlcache ; ls "$pkgtool"* )
       pkgtool=${pkgtool%%-*}
+      pkgtool=${pkgtool:0:-1}
     else
       pkgtool="hdsetup"
       LANG=C
     fi
 
-    ( cd $dlcache ; tar xpJf "$pkgtool"-*.txz ; rm -rf tmp usr var )
-    if [ $pkgtool = "pkgtools${majorver}" ]; then
-	( cd $dlcache/sbin ; mv installer_new installer )
+    ( cd $dlcache ; tar xpf "$pkgtool"*-*.t*z* ; rm -rf tmp usr var )
+    if [ $pkgtool = "pkgtools" ]; then
+      ( cd $dlcache/sbin
+        mv installer_new installer
+        pkg_scripts="installpkg installpkg2 installpkg2.mes makepkg updatepkg removepkg"
+        for s in $pkg_scripts
+        do
+          mv new_"$s" $s
+        done
+        cd installer
+        ln -sf zstd-* zstd
+      )
     fi
 
     sed -i "/ldconfig/!s@/sbin@$dlcache&@g" $dlcache/sbin/installpkg*
@@ -141,7 +151,7 @@ install_plamo() {
     echo "Installing packages to $rtcache..."
     if [ ! -d $rtcache ] ; then
       mkdir -p $rtcache
-      for p in `ls -cr $dlcache/*.t?z` ; do
+      for p in `ls -cr $dlcache/*.t*z*` ; do
         installpkg -root $rtcache -priority ADD $p
       done
     fi
