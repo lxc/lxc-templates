@@ -294,12 +294,11 @@ configure_plamo7() {
 	EOF
 
     # remove initpkg that do not execute on containers
-    noexec="shadow netconfig7 eudev openssh pkgtools7 pkgtools8"
+    noexec="shadow netconfig7 eudev openssh"
     for f in $noexec
     do
       rm -f $rootfs/var/log/initpkg/"$f"
     done
-    ( cd $rootfs/sbin ; mv installer_new installer )
 }
 
 configure_plamo() {
