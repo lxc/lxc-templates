@@ -242,7 +242,7 @@ EOF
 
     if [ "$release" != "unstable" -a "$release" != "sid" ]; then
       cat >> "${rootfs}/etc/apt/sources.list" << EOF
-${prefix} $SECURITY_MIRROR ${release}/updates main${non_main}
+${prefix} $SECURITY_MIRROR ${release}-security main${non_main}
 EOF
     fi
 }
