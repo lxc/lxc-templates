@@ -214,7 +214,9 @@ AC_CONFIG_FILES([
 	templates/lxc-sparclinux
 	templates/lxc-voidlinux
 	templates/lxc-sabayon
-])
+	],
+	if test "${ac_file##templates/lxc-}" != "${ac_file}"; then chmod +x $ac_file; fi
+)
 AC_CONFIG_COMMANDS([default],[[]],[[]])
 AC_OUTPUT
 
