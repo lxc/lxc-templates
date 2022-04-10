@@ -267,9 +267,9 @@ install_packages()
 {
     local rootfs="$1"; shift
     local packages="$*"
-    
+
     if [ -n "${packages}" ] && apt_update_packages; then
-        chroot "${rootfs}" apt-get install --force-yes -y --no-install-recommends ${packages}
+        chroot "${rootfs}" apt-get install -y --no-install-recommends ${packages}
     elif [ -n "${packages}" ]; then
         echo "Apt update failed, not downloading packages"
     fi
@@ -612,6 +612,13 @@ EOF
         write_sourceslist "${rootfs}" "${release}" "${arch}"
     else
         write_sourceslist "${rootfs}" "${release}"
+    fi
+
+    # Copy non-standard keyring inside rootfs
+    local extra_keyring
+    extra_keyring="${rootfs}/etc/apt/trusted.gpg.d/lxc-create-$(basename "${KEYRING}")"
+    if [ "${KEYRING}" != "${DEBIAN_ARCHIVE_KEYRING}" ]; then
+      cp "${KEYRING}" "${extra_keyring}"
     fi
 
     # Install Packages in container
