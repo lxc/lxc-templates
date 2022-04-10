@@ -42,6 +42,8 @@ LOCALSTATEDIR="@LOCALSTATEDIR@"
 LXC_TEMPLATE_CONFIG="@LXCTEMPLATECONFIG@"
 # Allows the lxc-cache directory to be set by environment variable
 LXC_CACHE_PATH=${LXC_CACHE_PATH:-"$LOCALSTATEDIR/cache/lxc"}
+DEBIAN_ARCHIVE_KEYRING=/usr/share/keyrings/debian-archive-keyring.gpg
+KEYRING=${KEYRING:-${DEBIAN_ARCHIVE_KEYRING}}
 DOWNLOAD_KEYRING=${DOWNLOAD_KEYRING:-1}
 
 find_interpreter()
@@ -387,13 +389,13 @@ apt-transport-https
     mkdir -p "$cache"
 
     # If debian-archive-keyring isn't installed, fetch GPG keys directly
-    releasekeyring=/usr/share/keyrings/debian-archive-keyring.gpg
+    releasekeyring=${KEYRING}
     lreleasekeyring=/etc/apt/trusted.gpg.d/debian-archive-$release-stable.gpg
     if [ -f "$releasekeyring" ]; then
         apt_gpg_opt="--keyring=${releasekeyring}"
     elif [ -f "$lreleasekeyring" ]; then
         apt_gpg_opt="--keyring=${lreleasekeyring}"
-    elif [ "$DOWNLOAD_KEYRING" = 1 ]; then 
+    elif [ ${releasekeyring}" = "${DEBIAN_ARCHIVE_KEYRING} -a "$DOWNLOAD_KEYRING" = 1 ]; then
         [ ! -d "/etc/apt/trusted.gpg.d" ] && lreleasekeyring="$cache/archive-key.gpg"
         if [[ "$(id -u)" == "0" ]]; then
             case $release in
@@ -660,6 +662,7 @@ Template specific options can be passed to lxc-create after a '--' like this:
 
 Usage: $1 -h|--help -p|--path=<path> [-c|--clean] [-a|--arch=<arch>] [-r|--release=<release>]
                                      [--mirror=<mirror>] [--security-mirror=<security mirror>]
+                                     [--keyring=<keyring>]
                                      [--package=<package_name1,package_name2,...>]
                                      [-I|--interpreter-path=<interpreter path>]
                                      [-F | --flush-cache] [-S|--auth-key=<keyfile>]
@@ -675,6 +678,8 @@ Options :
                          Defaults to current stable.
   --mirror=MIRROR        Debian mirror to use during installation. Overrides the MIRROR
                          environment variable (see below).
+  --keyring=KEYRING      GPG keyring to authenticate the repository against.
+                         Overrides the KEYRING environment variable (see below).
   --security-mirror=SECURITY_MIRROR
                          Debian mirror to use for security updates. Overrides the
                          SECURITY_MIRROR environment variable (see below).
@@ -692,6 +697,7 @@ Environment variables:
                          Defaults to '$MIRROR'
   SECURITY_MIRROR        The Debian package security mirror to use. See also the --security-mirror switch above.
                          Defaults to '$SECURITY_MIRROR'
+  KEYRING                Defaults to '$DEBIAN_ARCHIVE_KEYRING'
   DOWNLOAD_KEYRING       Sets whether to download keyring when missing or ignore keyring checks
                          Defaults to 1
 
@@ -699,7 +705,7 @@ EOF
     return 0
 }
 
-options=$(getopt -o hp:n:a:r:cI:FS: -l arch:,auth-key:,clean,help,enable-non-free,mirror:,name:,packages:,path:,release:,rootfs:,security-mirror:,interpreter-path:,flush-cache -- "$@")
+options=$(getopt -o hp:n:a:r:cI:FS: -l arch:,auth-key:,clean,help,enable-non-free,mirror:keyring:,name:,packages:,path:,release:,rootfs:,security-mirror:,interpreter-path:,flush-cache -- "$@")
 if [ $? -ne 0 ]; then
         usage "$(basename "$0")"
         exit 1
@@ -743,6 +749,7 @@ do
         -c|--clean)           clean=1; shift 1;;
            --enable-non-free) mainonly=0; shift 1;;
            --mirror)          MIRROR=$2; shift 2;;
+           --keyring)         KEYRING=$2; shift 2;;
         -n|--name)            name=$2; shift 2;;
            --packages)        packages=$2; shift 2;;
         -p|--path)            path=$2; shift 2;;
