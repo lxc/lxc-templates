@@ -89,6 +89,9 @@ set_default_arch()
     elif [[ $arch =~ arm.* ]]; then
         arch="arm"
         variant="armv7a"
+    elif [[ $arch == "aarch64" ]]; then
+        arch="arm64"
+        variant="arm64-openrc"
     else
         #who knows, it may work...
         printf " => warn: unexpected arch:${arch} let me knows if it works :)\n"
