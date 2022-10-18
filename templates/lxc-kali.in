@@ -155,6 +155,12 @@ EOF
         chroot "$rootfs" update-locale LANG="$LANG"
     fi
 
+    # remove pointless services in a container
+    chroot "$rootfs" /usr/sbin/update-rc.d -f checkroot.sh disable
+    chroot "$rootfs" /usr/sbin/update-rc.d -f umountfs disable
+    chroot "$rootfs" /usr/sbin/update-rc.d -f hwclock.sh disable
+    chroot "$rootfs" /usr/sbin/update-rc.d -f hwclockfirst.sh disable
+
     # generate new SSH keys
     if [ -x "$rootfs/var/lib/dpkg/info/openssh-server.postinst" ]; then
         cat > "$rootfs/usr/sbin/policy-rc.d" << EOF
@@ -394,7 +400,7 @@ apt-transport-https
             echo "Failed to download the rootfs, aborting."
             return 1
         fi
-        mkdir -p "$(basename "$cache/partial-$release-$arch/$interpreter_path")"
+        mkdir -p "$(dirname "$cache/partial-$release-$arch/$interpreter_path")"
         cp "$interpreter" "$cache/partial-$release-$arch/$interpreter_path"
         if [ $? -ne 0 ]; then
             echo "failed to copy $interpreter to $cache/partial-$release-$arch/$interpreter_path"
@@ -613,7 +619,7 @@ Template specific options can be passed to lxc-create after a '--' like this:
   lxc-create --name=NAME [-lxc-create-options] -- [-template-options]
 
 Usage: $1 -h|--help -p|--path=<path> [-c|--clean] [-a|--arch=<arch>] [-r|--release=<release>]
-                                     [--mirror=<mirror>] [--security-mirror=<security mirror>]
+                                     [--mirror=<mirror>]
                                      [--package=<package_name1,package_name2,...>]
                                      [-I|--interpreter-path=<interpreter path>]
                                      [-F | --flush-cache] [-S|--auth-key=<keyfile>]
@@ -625,11 +631,10 @@ Options :
   -S, --auth-key=KEYFILE SSH public key to inject into the container as the root user.
   -a, --arch=ARCH        The container architecture. Can be one of: i686, x86_64,
                          amd64, armhf, armel. Defaults to host arch.
+  -r, --release=RELEASE  Kali release. Can be one of: kali-dev, kali-rolling.
+                         Defaults to kali-rolling.
   --mirror=MIRROR        Kali mirror to use during installation. Overrides the MIRROR
                          environment variable (see below).
-  --security-mirror=SECURITY_MIRROR
-                         Kali mirror to use for security updates. Overrides the
-                         SECURITY_MIRROR environment variable (see below).
   --packages=PACKAGE_NAME1,PACKAGE_NAME2,...
                          List of additional packages to install. Comma separated, without space.
   -c, --clean            only clean up the cache and terminate
@@ -644,6 +649,7 @@ Environment variables:
                          Defaults to '$MIRROR'
   DOWNLOAD_KEYRING       Sets whether to download keyring when missing or ignore keyring checks
                          Defaults to 1
+
 EOF
     return 0
 }
@@ -668,6 +674,7 @@ elif [ "$arch" = "aarch64" ]; then
     arch="arm64"
 fi
 hostarch=$arch
+packages=
 mainonly=1
 flushcache=0
 
