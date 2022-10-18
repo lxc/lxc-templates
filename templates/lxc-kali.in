@@ -155,6 +155,12 @@ EOF
         chroot "$rootfs" update-locale LANG="$LANG"
     fi
 
+    # remove pointless services in a container
+    chroot "$rootfs" /usr/sbin/update-rc.d -f checkroot.sh disable
+    chroot "$rootfs" /usr/sbin/update-rc.d -f umountfs disable
+    chroot "$rootfs" /usr/sbin/update-rc.d -f hwclock.sh disable
+    chroot "$rootfs" /usr/sbin/update-rc.d -f hwclockfirst.sh disable
+
     # generate new SSH keys
     if [ -x "$rootfs/var/lib/dpkg/info/openssh-server.postinst" ]; then
         cat > "$rootfs/usr/sbin/policy-rc.d" << EOF
@@ -668,6 +674,7 @@ elif [ "$arch" = "aarch64" ]; then
     arch="arm64"
 fi
 hostarch=$arch
+packages=
 mainonly=1
 flushcache=0
 
