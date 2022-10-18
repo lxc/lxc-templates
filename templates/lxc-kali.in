@@ -394,7 +394,7 @@ apt-transport-https
             echo "Failed to download the rootfs, aborting."
             return 1
         fi
-        mkdir -p "$(basename "$cache/partial-$release-$arch/$interpreter_path")"
+        mkdir -p "$(dirname "$cache/partial-$release-$arch/$interpreter_path")"
         cp "$interpreter" "$cache/partial-$release-$arch/$interpreter_path"
         if [ $? -ne 0 ]; then
             echo "failed to copy $interpreter to $cache/partial-$release-$arch/$interpreter_path"
