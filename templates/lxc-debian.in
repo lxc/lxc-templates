@@ -715,7 +715,7 @@ EOF
     return 0
 }
 
-options=$(getopt -o hp:n:a:r:cI:FS: -l arch:,auth-key:,clean,help,enable-non-free,mirror:keyring:,name:,packages:,path:,release:,rootfs:,security-mirror:,interpreter-path:,flush-cache -- "$@")
+options=$(getopt -o hp:n:a:r:cI:FS: -l arch:,auth-key:,clean,help,enable-non-free,keyring:,mirror:,name:,packages:,path:,release:,rootfs:,security-mirror:,interpreter-path:,flush-cache -- "$@")
 if [ $? -ne 0 ]; then
         usage "$(basename "$0")"
         exit 1
