@@ -60,7 +60,7 @@ userns_config="@LXCTEMPLATECONFIG@/voidlinux.userns.conf"
 
 pkg_blacklist=("linux>=0" "e2fsprogs>=0" "btrfs-progs>=0" "xfsprogs>=0" "f2fs-tools>=0" "dosfstools>=0")
 base_packages=()
-for pkg in $(xbps-query -Mv --repository="http://repo2.voidlinux.eu/current/" -x base-system); do
+for pkg in $(xbps-query -Mv --repository="https://repo-default.voidlinux.org/current/" -x base-system); do
     containsElement "$pkg" "${pkg_blacklist[@]}" || base_packages+=($pkg)
 done
 declare -a additional_packages
@@ -87,7 +87,7 @@ copy_configuration() {
 }
 
 install_void() {
-    if ! yes | xbps-install -Sy -R http://repo2.voidlinux.eu/current -r "${rootfs_path}" "${base_packages[@]}"
+    if ! yes | xbps-install -Sy -R https://repo-default.voidlinux.org/current -r "${rootfs_path}" "${base_packages[@]}"
     then
         echo "Failed to install container packages"
         return 1
@@ -194,6 +194,6 @@ fi
 
 cat << EOF
 Void Linux Container ${name} has been successfully created. The configuration is
-stored in ${config_path}/config. Please refer to https://wiki.voidlinux.eu for
+stored in ${config_path}/config. Please refer to https://docs.voidlinux.org for
 information regarding Void Linux.
 EOF
