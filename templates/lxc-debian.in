@@ -786,18 +786,22 @@ if [ "$arch" = "x86_64" ]; then
 fi
 
 
-testing_release_file=${DEBIAN_MIRROR}/dists/testing/main/binary-${arch}/Release
-if ! wget -q -O /dev/null "${testing_release_file}"; then
-  echo "${arch} does not look like a release architecture, trying debian ports"
-  # non-release architecture; assume debian-ports architecture
-  if [ "${MIRROR}" = "${DEBIAN_MIRROR}" ]; then
-    MIRROR="${DEBIAN_PORTS_MIRROR}"
+release_file=${DEBIAN_MIRROR}/dists/${release}/main/binary-${arch}/Release
+if ! wget -q -O /dev/null "${release_file}"; then
+  if [ "${release}" = unstable ] || [ "${release}" = sid ]; then
+    echo "${arch}/${release} not available on mirror, trying debian ports"
+    # non-release architecture; assume debian-ports architecture
+    if [ "${MIRROR}" = "${DEBIAN_MIRROR}" ]; then
+      MIRROR="${DEBIAN_PORTS_MIRROR}"
+    fi
+    if [ "${KEYRING}" = "${DEBIAN_ARCHIVE_KEYRING}" ]; then
+      KEYRING="${DEBIAN_PORTS_ARCHIVE_KEYRING}"
+    fi
+    packages="debian-ports-archive-keyring,${packages}"
+  else
+    echo "Error: ${arch}/${release} not available on mirror ${DEBIAN_MIRROR}"
+    exit 1
   fi
-  if [ "${KEYRING}" = "${DEBIAN_ARCHIVE_KEYRING}" ]; then
-    KEYRING="${DEBIAN_PORTS_ARCHIVE_KEYRING}"
-  fi
-  packages="debian-ports-archive-keyring,${packages}"
-  release="${release:-unstable}"
 fi
 
 if [ "$interpreter" = "" ] ; then
