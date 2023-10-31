@@ -367,12 +367,19 @@ download_debian()
         iproute=iproute2
         ;;
     esac
+    if [ `apt search dialog |grep ^dialog\/ |wc -l` != 0 ]; then
+        dialoglike="dialog"
+    elif [ `apt search whiptail |grep ^whiptail\/ |wc -l` != 0 ]; then
+        dialoglike="whiptail"
+    elif [ `apt search Xdialog |grep ^Xdialog\/ |wc -l` != 0 ]; then
+        dialoglike="Xdialog"
+    fi
     packages=\
 $init,\
 ifupdown,\
 locales,\
 ca-certificates,\
-dialog,\
+$dialoglike,\
 isc-dhcp-client,\
 netbase,\
 net-tools,\
