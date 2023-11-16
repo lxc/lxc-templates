@@ -786,7 +786,7 @@ if [ "$arch" = "x86_64" ]; then
 fi
 
 
-release_file=${DEBIAN_MIRROR}/dists/${release}/main/binary-${arch}/Release
+release_file=${MIRROR}/dists/${release}/main/binary-${arch}/Release
 if ! wget -q -O /dev/null "${release_file}"; then
   if [ "${release}" = unstable ] || [ "${release}" = sid ]; then
     echo "${arch}/${release} not available on mirror, trying debian ports"
