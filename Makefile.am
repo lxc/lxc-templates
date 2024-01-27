@@ -10,9 +10,5 @@ EXTRA_DIST = \
 	CONTRIBUTING \
 	MAINTAINERS
 
-install-data-local:
-	$(MKDIR_P) $(DESTDIR)$(LXCPATH)
-	$(MKDIR_P) $(DESTDIR)$(localstatedir)/cache/lxc
-
 ChangeLog::
 	@touch ChangeLog
