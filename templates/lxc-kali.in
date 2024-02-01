@@ -224,13 +224,18 @@ write_sourceslist()
     if [ "$mainonly" = 1 ]; then
       non_main=''
     else
-      non_main=' contrib non-free'
+      non_main=' contrib non-free non-free-firmware'
     fi
 
     cat >> "${rootfs}/etc/apt/sources.list" << EOF
 ${prefix} $MIRROR ${release} main${non_main}
 EOF
+}
 
+apt_update_packages(){
+    local apt_update_args="update"
+    chroot "${rootfs}" apt-get $apt_update_args
+    return $?
 }
 
 install_packages()
@@ -238,9 +243,10 @@ install_packages()
     local rootfs="$1"; shift
     local packages="$*"
 
-    chroot "${rootfs}" apt-get update
-    if [ -n "${packages}" ]; then
-        chroot "${rootfs}" apt-get install --force-yes -y --no-install-recommends ${packages}
+    if [ -n "${packages}" ] && apt_update_packages; then
+        chroot "${rootfs}" apt-get install -y --no-install-recommends ${packages}
+    elif [ -n "${packages}" ]; then
+        echo "Apt update failed, not downloading packages"
     fi
 }
 
@@ -638,7 +644,7 @@ Options :
   --packages=PACKAGE_NAME1,PACKAGE_NAME2,...
                          List of additional packages to install. Comma separated, without space.
   -c, --clean            only clean up the cache and terminate
-  --enable-non-free      include also Kali's contrib and non-free repositories.
+  --enable-non-free      include also Kali's contrib, non-free and non-free-firmware repositories.
   -I|--interpreter-path=INTERPRETER-PATH
                          Path of the binfmt interpreter to copy to the rootfs
   -F | --flush-cache     Flush the kali release cache
