@@ -230,7 +230,12 @@ write_sourceslist()
     cat >> "${rootfs}/etc/apt/sources.list" << EOF
 ${prefix} $MIRROR ${release} main${non_main}
 EOF
+}
 
+apt_update_packages(){
+    local apt_update_args="update"
+    chroot "${rootfs}" apt-get $apt_update_args
+    return $?
 }
 
 install_packages()
@@ -238,9 +243,10 @@ install_packages()
     local rootfs="$1"; shift
     local packages="$*"
 
-    chroot "${rootfs}" apt-get update
-    if [ -n "${packages}" ]; then
-        chroot "${rootfs}" apt-get install --force-yes -y --no-install-recommends ${packages}
+    if [ -n "${packages}" ] && apt_update_packages; then
+        chroot "${rootfs}" apt-get install -y --no-install-recommends ${packages}
+    elif [ -n "${packages}" ]; then
+        echo "Apt update failed, not downloading packages"
     fi
 }
 
