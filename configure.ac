@@ -202,6 +202,7 @@ AC_CONFIG_FILES([
 	templates/lxc-fedora-legacy
 	templates/lxc-gentoo
 	templates/lxc-kali
+	templates/lxc-openeuler
 	templates/lxc-openmandriva
 	templates/lxc-opensuse
 	templates/lxc-oracle
