@@ -12,6 +12,7 @@ templates_SCRIPTS = \
 	lxc-fedora-legacy \
 	lxc-gentoo \
 	lxc-kali \
+	lxc-openeuler \
 	lxc-openmandriva \
 	lxc-opensuse \
 	lxc-oracle \
