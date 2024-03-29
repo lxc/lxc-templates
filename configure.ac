@@ -193,6 +193,7 @@ AC_CONFIG_FILES([
 	templates/Makefile
 	templates/lxc-alpine
 	templates/lxc-altlinux
+	templates/lxc-anolis
 	templates/lxc-archlinux
 	templates/lxc-centos
 	templates/lxc-cirros
