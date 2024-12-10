@@ -224,11 +224,14 @@ fetch_apk_static() {
 
 	local sigprefix=$apk.SIGN.RSA.
 	local keyfile=$(ls -1 "$sigprefix"alpine-*.pub 2>/dev/null | head -n 1)
-	openssl dgst -sha1 \
+	if ! openssl dgst -sha1 \
 		-verify "$APK_KEYS_DIR/${keyfile#$sigprefix}" \
 		-signature "$keyfile" \
-		"$apk" \
-		|| die 2 'Signature verification for apk.static failed'
+		"$apk"; then
+
+		rm -f "$apk"
+		die 2 'Signature verification for apk.static failed'
+	fi
 
 	# Note: apk doesn't return 0 for --version
 	local out=$("$apk" --version)
