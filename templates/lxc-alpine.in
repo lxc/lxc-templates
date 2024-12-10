@@ -58,7 +58,7 @@ d11f6b21c61b4274e182eb888883a8ba8acdbf820dcc7a6d82a7d9fc2fd2836d  alpine-devel@l
 40a216cbd163f22e5f16a9e0929de7cde221b9cbae8e36aa368b1e128afe0a31  alpine-devel@lists.alpinelinux.org-616db30d.rsa.pub"
 
 readonly APK_KEYS_URI='https://git.alpinelinux.org/aports/plain/main/alpine-keys/'
-readonly DEFAULT_MIRROR_URL='http://dl-cdn.alpinelinux.org/alpine'
+readonly DEFAULT_MIRROR_URL='https://dl-cdn.alpinelinux.org/alpine'
 
 : ${APK_KEYS_DIR:=/etc/apk/keys}
 if ! ls "$APK_KEYS_DIR"/alpine* >/dev/null 2>&1; then
