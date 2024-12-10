@@ -290,18 +290,33 @@ install_packages() {
 		--update-cache --initdb add $packages
 }
 
+_mknod() {
+	while getopts "m:" opt; do
+		case $opt in
+			m) MODE="-m $OPTARG";;
+			\?) return 1;;
+		esac
+	done
+	shift $((OPTIND - 1))
+
+	test -c "$1" && return 0   # device exists
+	test -f "$1" && rm -f "$1" # device is a regular file
+	mknod $MODE $@
+}
+
 make_dev_nodes() {
 	mkdir -p -m 755 dev/pts
 	mkdir -p -m 1777 dev/shm
 
 	local i; for i in $(seq 0 4); do
-		mknod -m 620 dev/tty$i c 4 $i
+		_mknod -m 620 dev/tty$i c 4 $i
 		chown 0:5 dev/tty$i  # root:tty
 	done
 
-	mknod -m 666 dev/tty c 5 0
+	_mknod -m 666 dev/tty c 5 0
 	chown 0:5 dev/tty  # root:tty
-	mknod -m 666 dev/ptmx c 5 2
+	_mknod -m 620 dev/console c 5 1
+	_mknod -m 666 dev/ptmx c 5 2
 	chown 0:5 dev/ptmx  # root:tty
 }
 
