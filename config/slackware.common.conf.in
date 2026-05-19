@@ -6,16 +6,16 @@ lxc.tty.dir =
 
 # Extra cgroup device access
 ## rtc
-lxc.cgroup.devices.allow = c 254:0 rm
+lxc.cgroup2.devices.allow = c 254:0 rm
 ## tun
-lxc.cgroup.devices.allow = c 10:200 rwm
+lxc.cgroup2.devices.allow = c 10:200 rwm
 ## hpet
-lxc.cgroup.devices.allow = c 10:228 rwm
+lxc.cgroup2.devices.allow = c 10:228 rwm
 ## kvm
-lxc.cgroup.devices.allow = c 10:232 rwm
+lxc.cgroup2.devices.allow = c 10:232 rwm
 ## To use loop devices, copy the following line to the container's
 ## configuration file (uncommented).
-#lxc.cgroup.devices.allow = b 7:* rwm
+#lxc.cgroup2.devices.allow = b 7:* rwm
 
 # mount /dev/shm as tmpfs
 lxc.mount.entry = none dev/shm tmpfs rw,nosuid,nodev,create=dir

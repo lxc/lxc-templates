@@ -16,46 +16,46 @@ lxc.autodev = 1
 lxc.tty.dir =
 
 # CGroup whitelist
-lxc.cgroup.devices.deny = a
+lxc.cgroup2.devices.deny = a
 
 ## Allow any mknod (but not reading/writing the node)
-#lxc.cgroup.devices.allow = c *:* m
-#lxc.cgroup.devices.allow = b *:* m
+#lxc.cgroup2.devices.allow = c *:* m
+#lxc.cgroup2.devices.allow = b *:* m
 
 ## Allow specific devices
 ### /dev/null
-lxc.cgroup.devices.allow = c 1:3 rwm
+lxc.cgroup2.devices.allow = c 1:3 rwm
 ### /dev/zero
-lxc.cgroup.devices.allow = c 1:5 rwm
+lxc.cgroup2.devices.allow = c 1:5 rwm
 ### /dev/full
-lxc.cgroup.devices.allow = c 1:7 rwm
+lxc.cgroup2.devices.allow = c 1:7 rwm
 ### /dev/random
-lxc.cgroup.devices.allow = c 1:8 rwm
+lxc.cgroup2.devices.allow = c 1:8 rwm
 ### /dev/urandom
-lxc.cgroup.devices.allow = c 1:9 rwm
+lxc.cgroup2.devices.allow = c 1:9 rwm
 ### /dev/pts/*
-#lxc.cgroup.devices.allow = c 136:* rwm
+#lxc.cgroup2.devices.allow = c 136:* rwm
 ### /dev/tty
-#lxc.cgroup.devices.allow = c 5:0 rwm
+#lxc.cgroup2.devices.allow = c 5:0 rwm
 ### /dev/console
-#lxc.cgroup.devices.allow = c 5:1 rwm
+#lxc.cgroup2.devices.allow = c 5:1 rwm
 ### /dev/ptmx
-#lxc.cgroup.devices.allow = c 5:2 rwm
+#lxc.cgroup2.devices.allow = c 5:2 rwm
 ### fuse
-#lxc.cgroup.devices.allow = c 10:229 rwm
+#lxc.cgroup2.devices.allow = c 10:229 rwm
 ## To use loop devices, copy the following line to the container's
 ## configuration file (uncommented).
-#lxc.cgroup.devices.allow = b 7:* rwm
+#lxc.cgroup2.devices.allow = b 7:* rwm
 ## rtc
-#lxc.cgroup.devices.allow = c 254:0 rm
+#lxc.cgroup2.devices.allow = c 254:0 rm
 ## tun
-#lxc.cgroup.devices.allow = c 10:200 rwm
+#lxc.cgroup2.devices.allow = c 10:200 rwm
 ## hpet
-#lxc.cgroup.devices.allow = c 10:228 rwm
+#lxc.cgroup2.devices.allow = c 10:228 rwm
 ## kvm
-#lxc.cgroup.devices.allow = c 10:232 rwm
+#lxc.cgroup2.devices.allow = c 10:232 rwm
 ## /dev/mem
-#lxc.cgroup.devices.allow = c 1:1 rwm
+#lxc.cgroup2.devices.allow = c 1:1 rwm
 
 # If something doesn't work, try to comment this out.
 # Dropping sys_admin disables container root from doing a lot of things
