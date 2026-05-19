@@ -6,4 +6,4 @@ lxc.tty.dir =
 
 # Extra cgroup device access
 ## rtc
-lxc.cgroup.devices.allow = c 254:0 rm
+lxc.cgroup2.devices.allow = c 254:0 rm
