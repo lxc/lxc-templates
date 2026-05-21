@@ -55,10 +55,12 @@ db0b49163f07ffba64a5ca198bcf1688610b0bd1f0d8d5afeaf78559d73f2278  alpine-devel@l
 0caf5662fde45616d88cfd7021b7bda269a2fcaf311e51c48945a967a609ec0b  alpine-devel@lists.alpinelinux.org-616ac3bc.rsa.pub
 ebe717d228555aa58133c202314a451f81e71f174781fd7ff8d8970d6cfa60da  alpine-devel@lists.alpinelinux.org-616adfeb.rsa.pub
 d11f6b21c61b4274e182eb888883a8ba8acdbf820dcc7a6d82a7d9fc2fd2836d  alpine-devel@lists.alpinelinux.org-616ae350.rsa.pub
-40a216cbd163f22e5f16a9e0929de7cde221b9cbae8e36aa368b1e128afe0a31  alpine-devel@lists.alpinelinux.org-616db30d.rsa.pub"
+40a216cbd163f22e5f16a9e0929de7cde221b9cbae8e36aa368b1e128afe0a31  alpine-devel@lists.alpinelinux.org-616db30d.rsa.pub
+db0b49163f07ffba64a5ca198bcf1688610b0bd1f0d8d5afeaf78559d73f2278  alpine-devel@lists.alpinelinux.org-60ac2099.rsa.pub
+7cf4cb8314e6ccc985b0d7f1aa0c6e0a81e3588f69a41f383af7a63d1ba61793  alpine-devel@lists.alpinelinux.org-66ba20fe.rsa.pub"
 
 readonly APK_KEYS_URI='https://git.alpinelinux.org/aports/plain/main/alpine-keys/'
-readonly DEFAULT_MIRROR_URL='http://dl-cdn.alpinelinux.org/alpine'
+readonly DEFAULT_MIRROR_URL='https://dl-cdn.alpinelinux.org/alpine'
 
 : ${APK_KEYS_DIR:=/etc/apk/keys}
 if ! ls "$APK_KEYS_DIR"/alpine* >/dev/null 2>&1; then
@@ -133,13 +135,18 @@ latest_release_branch() {
 
 parse_arch() {
 	case "$1" in
-		x86 | i[3-6]86) echo 'x86';;
-		x86_64 | amd64) echo 'x86_64';;
-		aarch64 | arm64) echo 'aarch64';;
-		armv7) echo 'armv7';;
-		arm*) echo 'armhf';;
-		ppc64le) echo 'ppc64le';;
-		*) return 1;;
+		i[3-6]86) echo 'x86';;
+		amd64) echo 'x86_64';;
+		arm64) echo 'aarch64';;
+		armv6) echo 'armhf';;
+		*) echo "$1";;
+	esac
+}
+
+lxc_arch() {
+	case "$1" in
+		armv[67]) echo "armhf";;
+		*) echo "$1";;
 	esac
 }
 
@@ -275,7 +282,8 @@ install() {
 		echo "$MIRROR_URL/$branch/$repo" >> etc/apk/repositories
 	done
 
-	install_packages "$arch" "alpine-base $extra_packages"
+	install_packages "$arch" "alpine-base $extra_packages" \
+		|| die 1 "Failed to install $arch packages"
 	make_dev_nodes
 	setup_inittab
 	setup_hosts
@@ -297,18 +305,33 @@ install_packages() {
 		--update-cache --initdb add $packages
 }
 
+_mknod() {
+	while getopts "m:" opt; do
+		case $opt in
+			m) MODE="-m $OPTARG";;
+			\?) return 1;;
+		esac
+	done
+	shift $((OPTIND - 1))
+
+	test -c "$1" && return 0   # device exists
+	test -f "$1" && rm -f "$1" # device is a regular file
+	mknod $MODE $@
+}
+
 make_dev_nodes() {
 	mkdir -p -m 755 dev/pts
 	mkdir -p -m 1777 dev/shm
 
 	local i; for i in $(seq 0 4); do
-		mknod -m 620 dev/tty$i c 4 $i
+		_mknod -m 620 dev/tty$i c 4 $i
 		chown 0:5 dev/tty$i  # root:tty
 	done
 
-	mknod -m 666 dev/tty c 5 0
+	_mknod -m 666 dev/tty c 5 0
 	chown 0:5 dev/tty  # root:tty
-	mknod -m 666 dev/ptmx c 5 2
+	_mknod -m 620 dev/console c 5 1
+	_mknod -m 666 dev/ptmx c 5 2
 	chown 0:5 dev/ptmx  # root:tty
 }
 
@@ -397,7 +420,7 @@ setup_services() {
 configure_container() {
 	local config="$1"
 	local hostname="$2"
-	local arch="$3"
+	local arch="$(lxc_arch "$3")"
 
 	cat <<-EOF >> "$config"
 
@@ -512,12 +535,11 @@ if [ -z "$rootfs" ]; then
 	rootfs="$path/rootfs"
 fi
 
-arch=$(parse_arch "$arch") \
-	|| die 1 "Unsupported architecture: $arch"
+arch=$(parse_arch "$arch")
 
 if [ -z "$release" ]; then
 	release=$(latest_release_branch "$arch") \
-		|| die 2 'Failed to resolve Alpine last release branch'
+		|| die 2 "Failed to resolve Alpine $arch last release branch"
 fi
 
 # Here we go!
